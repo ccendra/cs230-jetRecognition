@@ -243,9 +243,9 @@ def compute_cost(X, Y, weights, biases):
     #print("Logits: ", X.get_shape().as_list())
     
     #prediction = tf.image.resize_images(X, tf.shape(Y)[1:3,])
-    prediction = tf.reshape(prediction, [-1, n_classes])
-    gt = tf.image.resize_nearest_neighbor(Y , tf.stack(conv8.get_shape()[1:3]))
-    gt = tf.cast(tf.reshape(Y, [-1, n_classes]), tf.float32)
+    prediction = tf.reshape(X, [-1, n_classes])
+    gt = tf.image.resize_nearest_neighbor(Y , tf.stack(Y.get_shape()[1:3]))
+    gt = tf.cast(tf.reshape(gt, [-1, n_classes]), tf.float32)
     
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits = prediction, labels = gt))
     return cost
