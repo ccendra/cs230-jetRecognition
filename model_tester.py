@@ -288,13 +288,13 @@ def train(X_train, Y_train, X_test, Y_test, learning_rate = learning_rate,
     correct = tf.equal(tf.cast(predict_op, tf.int64), tf.argmax(Y,dimension=3))
     accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
     confusion = tf.contrib.metrics.confusion_matrix(tf.reshape(predict_op, [-1]), tf.reshape(tf.argmax(Y,dimension=3), [-1]), num_classes=2)
-
+    mIoU, _ = tf.contrib.metrics.streaming_mean_iou(predict_op, tf.argmax(Y, dimension=3), num_classes=2)
     # Start the session to compute the tensorflow graph
     with tf.Session() as sess:
         
         # Run the initialization
         sess.run(tf.global_variables_initializer())
-        sess.run(tf.initialize_local_variables())
+        sess.run(tf.local_variables_initializer())
         
         n_samples = X_train.shape[0]
         # Do the training loop
@@ -332,19 +332,14 @@ def train(X_train, Y_train, X_test, Y_test, learning_rate = learning_rate,
         #mIoU, update_op = tf.contrib.metrics.streaming_mean_iou(predict_op, Y, num_classes=2) 
 
 
-        mean_iou, _ = tf.contrib.metrics.streaming_mean_iou(predict_op, tf.argmax(Y, dimension=3), num_classes=2)
-        #X_test = np.expand_dims(X_test, axis = -1)
-        #Y_test = np.expand_dims(Y_test, axis = -1)
-        #preds, _ = sess.run([predict_op, update_op], feed_dict={X: X_test, Y: Y_test})
+        
+
         
         X_test = np.expand_dims(X_test, axis = -1)
         print('Accuracy =', accuracy.eval({X: X_test, Y: Y_test}))
         print('confusion:')
         print(confusion.eval({X: X_test, Y: Y_test}))
-        ### FOR SOME REASON THIS IS NOT WORKING
-        ### FOLLOWED THIS BUT STILL DOESN'T WORK: https://github.com/tensorflow/tensorflow/issues/4331
-        ###accuracy_increment, iou_increment = sess.run([predict_op, mean_iou], feed_dict={ X: X_test, Y: Y_test})
-        ###print('Mean IoU: {:.3f}'.format(mIoU.eval(session=sess)))
+        print('Mean IoU: ', mIoU.eval({X: X_test, Y: Y_test})))
         
         return "belle"
 
